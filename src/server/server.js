@@ -19,30 +19,18 @@ let logs = [];
 let users = {};
 
 const server = http.createServer(async (req, res) => {
+  console.log("received request", req.method, req.url);
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // if (req.method === "GET" && req.url === "/api/ytdl") {
-  //   req.on("end", async () => {
-  //     const { videoId } = req.query;
-  //     try {
-  //       const info = await ytdl.getBasicInfo(
-  //         `https://www.youtube.com/watch?v=${videoId}`
-  //       );
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
 
-  //       res.status(200, { "Content-Type": "application/json" });
-  //       res.end(JSON.stringify(info.videoDetails));
-  //     } catch (error) {
-  //       // console.log("error", error);
-
-  //       res.status(500, { "Content-Type": "application/json" });
-  //       res.end(JSON.stringify({ error: `無法獲取影片資訊` }));
-  //     }
-  //   });
-  // }
-
-  if (req.method === "GET" && req.url.startsWith("/api/ytdl")) {
+  if (req.url.startsWith("/api/ytdl")) {
     const query = url.parse(req.url, true).query;
     const { videoId } = query;
 
@@ -59,15 +47,14 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(info.videoDetails));
     } catch (error) {
-      console.error("Error fetching video info:", error);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
     }
     return;
   }
 
-  res.writeHead(404, { "Content-Type": "text/plain" });
-  res.end("HELLO WORLD");
+  res.writeHead(404, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: "找不到該路由" }));
 });
 
 const io = new Server(server, {
