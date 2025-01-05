@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const http = require("http");
+const ytdl = require("ytdl-core");
 
 let playerState = {
   playing: false,
@@ -16,13 +17,59 @@ let playerState = {
 let logs = [];
 let users = {};
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // if (req.method === "GET" && req.url === "/api/ytdl") {
+  //   req.on("end", async () => {
+  //     const { videoId } = req.query;
+  //     try {
+  //       const info = await ytdl.getBasicInfo(
+  //         `https://www.youtube.com/watch?v=${videoId}`
+  //       );
+
+  //       res.status(200, { "Content-Type": "application/json" });
+  //       res.end(JSON.stringify(info.videoDetails));
+  //     } catch (error) {
+  //       // console.log("error", error);
+
+  //       res.status(500, { "Content-Type": "application/json" });
+  //       res.end(JSON.stringify({ error: `無法獲取影片資訊` }));
+  //     }
+  //   });
+  // }
+
+  if (req.method === "GET" && req.url.startsWith("/api/ytdl")) {
+    const query = url.parse(req.url, true).query;
+    const { videoId } = query;
+
+    if (!videoId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "缺少 videoId 參數" }));
+      return;
+    }
+
+    try {
+      const info = await ytdl.getBasicInfo(
+        `https://www.youtube.com/watch?v=${videoId}`
+      );
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(info.videoDetails));
+    } catch (error) {
+      console.error("Error fetching video info:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
+    }
+    return;
+  }
+
   res.writeHead(404, { "Content-Type": "text/plain" });
-  res.end("This is a WebSocket server. HTTP requests are not supported.");
+  res.end("HELLO WORLD");
 });
 
 const io = new Server(server, {
-  //   path: "/api/socket",
   cors: {
     origin: "*", // Allow all origins
     methods: ["GET", "POST"],
