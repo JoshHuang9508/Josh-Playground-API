@@ -163,7 +163,7 @@ io.on("connection", (socket) => {
   });
   socket.on("removeTrack", (index) => {
     playerState.trackQueue.splice(index, 1);
-    if (index > playerState.index) playerState.index--;
+    if (index < playerState.index) playerState.index--;
     playerState.index = Math.min(
       playerState.index,
       playerState.trackQueue.length - 1
