@@ -2,7 +2,7 @@
 
 ## What is this
 
-- This is API server for [Josh Playground]([/guides/content/editing-an-existing-page](https://github.com/JoshHuang9508/Josh-Playground)
+- This is API server for [Josh Playground](https://github.com/JoshHuang9508/Josh-Playground)
 
 ## API
 
