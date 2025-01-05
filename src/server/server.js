@@ -209,6 +209,16 @@ io.on("connection", (socket) => {
   socket.on("seek", (time) => {
     io.emit("seek", time);
   });
+  socket.on("end", () => {
+    if (playerState.random) {
+      playerState.index = Math.floor(
+        Math.random() * playerState.trackQueue.length
+      );
+      io.emit("receivePlayerState", playerState);
+    } else {
+      io.emit("nextTrack");
+    }
+  });
 });
 
 server.listen(4000, () => {
