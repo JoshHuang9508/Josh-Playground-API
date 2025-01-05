@@ -20,7 +20,7 @@ let users = {};
 
 const server = http.createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   // if (req.method === "GET" && req.url === "/api/ytdl") {
