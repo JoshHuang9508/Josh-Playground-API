@@ -7,6 +7,7 @@ const ytpl = require("ytpl");
 // Config
 const logLimit = 20;
 
+let trackIndex = 0;
 let playerState = {
   playing: false,
   played: 0,
@@ -18,7 +19,9 @@ let playerState = {
   loop: false,
   random: false,
   trackQueue: [],
+  currentTrack: null,
   index: 0,
+  isEnd: false,
 };
 let logs = [];
 let users = {};
@@ -96,8 +99,6 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
-
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
     logs = [`${users[socket.id]} 離開了房間`, ...logs].slice(0, logLimit);
@@ -108,14 +109,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join", (username) => {
+    console.log("A user connected:", socket.id);
     logs = [`${username} 加入了房間`, ...logs].slice(0, logLimit);
     users[socket.id] = username;
 
     io.emit("receiveLog", logs);
     io.emit("receiveUsers", users);
-  });
-
-  socket.on("ready", () => {
     io.to(socket.id).emit("receivePlayerState", playerState);
   });
 
@@ -133,8 +132,17 @@ io.on("connection", (socket) => {
     playerState = { ...playerState, ...state };
     io.emit("receivePlayerState", playerState);
   });
-  socket.on("updatePlayerState", (state) => {
-    playerState = { ...playerState, ...state };
+  socket.on("onDuration", (duration) => {
+    playerState.duration = duration;
+  });
+  socket.on("onProgress", (state) => {
+    playerState.played = state.played;
+    playerState.playedSeconds = state.playedSeconds;
+    playerState.loaded = state.loaded;
+    playerState.loadedSeconds = state.loadedSeconds;
+  });
+  socket.on("onEnd", () => {
+    playerState.isEnd = true;
   });
   socket.on("play", () => {
     playerState.playing = true;
@@ -145,54 +153,42 @@ io.on("connection", (socket) => {
     io.emit("receivePlayerState", playerState);
   });
   socket.on("refresh", async () => {
-    playerState.playing = false;
     io.emit("receivePlayerState", playerState);
-    await new Promise((resolve) => setTimeout(resolve, 100));
     io.emit("seek", playerState.playedSeconds);
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    playerState.playing = true;
-    io.emit("receivePlayerState", playerState);
   });
   socket.on("addTrack", (track) => {
     playerState.trackQueue.push(track);
-    io.emit("receivePlayerState", playerState);
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("addTracks", (tracks) => {
     playerState.trackQueue.push(...tracks);
-    io.emit("receivePlayerState", playerState);
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("removeTrack", (index) => {
     playerState.trackQueue.splice(index, 1);
-    if (index < playerState.index) playerState.index--;
-    playerState.index = Math.min(
-      playerState.index,
-      playerState.trackQueue.length - 1
-    );
-    playerState.index = Math.max(playerState.index, 0);
-    io.emit("receivePlayerState", playerState);
+    if (index < trackIndex) trackIndex--;
+    trackIndex = Math.min(trackIndex, playerState.trackQueue.length - 1);
+    trackIndex = Math.max(trackIndex, 0);
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("setTrackQueue", (trackQueue) => {
     playerState.trackQueue = trackQueue;
-    playerState.index = 0;
-    io.emit("receivePlayerState", playerState);
+    trackIndex = 0;
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("nextTrack", () => {
-    playerState.index =
-      playerState.index == playerState.trackQueue.length - 1
-        ? 0
-        : playerState.index + 1;
-    io.emit("receivePlayerState", playerState);
+    trackIndex =
+      trackIndex == playerState.trackQueue.length - 1 ? 0 : trackIndex + 1;
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("prevTrack", () => {
-    playerState.index =
-      playerState.index == 0
-        ? playerState.trackQueue.length - 1
-        : playerState.index - 1;
-    io.emit("receivePlayerState", playerState);
+    trackIndex =
+      trackIndex == 0 ? playerState.trackQueue.length - 1 : trackIndex - 1;
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("setTrackIndex", (index) => {
-    playerState.index = index;
-    io.emit("receivePlayerState", playerState);
+    trackIndex = index;
+    UpdateCurrentTrack(trackIndex);
   });
   socket.on("setPlaybackRate", (rate) => {
     playerState.playbackRate = rate;
@@ -209,18 +205,38 @@ io.on("connection", (socket) => {
   socket.on("seek", (time) => {
     io.emit("seek", time);
   });
-  socket.on("end", () => {
-    if (playerState.random) {
-      playerState.index = Math.floor(
-        Math.random() * playerState.trackQueue.length
-      );
-      io.emit("receivePlayerState", playerState);
-    } else {
-      io.emit("nextTrack");
-    }
-  });
 });
 
 server.listen(4000, () => {
-  console.log("WebSocket 和 HTTP API 伺服器啟動於端口 4000");
+  console.log("Websocket and API server is running on port 4000");
 });
+
+const interval = setInterval(() => {
+  // console.log("playerState: ", playerState);
+  if (playerState.isEnd) HandleEnd();
+}, 1000);
+
+const HandleEnd = () => {
+  playerState.isEnd = false;
+  if (playerState.random) {
+    trackIndex = Math.floor(Math.random() * playerState.trackQueue.length);
+    UpdateCurrentTrack(trackIndex);
+  } else if (playerState.trackQueue.length === 1) {
+    io.emit("seek", 0);
+  } else {
+    trackIndex =
+      trackIndex == playerState.trackQueue.length - 1 ? 0 : trackIndex + 1;
+    UpdateCurrentTrack(trackIndex);
+  }
+};
+
+const UpdateCurrentTrack = (index) => {
+  const currentTrack = playerState.currentTrack;
+  const newTrack = playerState.trackQueue[index] ?? null;
+  if (currentTrack && newTrack && newTrack.id != currentTrack.id) {
+    io.emit("seek", 0);
+  }
+  playerState.currentTrack = newTrack;
+  playerState.index = index;
+  io.emit("receivePlayerState", playerState);
+};
