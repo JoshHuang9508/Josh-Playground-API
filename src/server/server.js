@@ -78,8 +78,81 @@ const server = http.createServer(async (req, res) => {
       const info = await ytpl(
         `https://www.youtube.com/playlist?list=${playlistId}`
       );
+      if (info.items.length === 0) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "無法獲取播放清單" }));
+        return;
+      }
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(info.items.filter((item) => item.isPlayable)));
+    } catch (error) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
+    }
+    return;
+  }
+
+  if (req.url.startsWith("/api/ytdownload-mp4")) {
+    const query = url.parse(req.url, true).query;
+    const { videoId } = query;
+
+    if (!videoId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "缺少 videoId 參數" }));
+      return;
+    }
+
+    try {
+      const info = await ytdl.getInfo(
+        `https://www.youtube.com/watch?v=${videoId}`
+      );
+      if (info.videoDetails.isLiveContent) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "無法下載直播影片" }));
+        return;
+      }
+      res.writeHead(200, {
+        "Content-Disposition": `attachment; filename="${info.videoDetails.title}.mp4"`,
+        "Content-Type": "video/mp4",
+      });
+      ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
+        format: "mp4",
+        quality: "highest",
+      }).pipe(res);
+    } catch (error) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
+    }
+    return;
+  }
+
+  if (req.url.startsWith("/api/ytdownload-mp3")) {
+    const query = url.parse(req.url, true).query;
+    const { videoId } = query;
+
+    if (!videoId) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "缺少 videoId 參數" }));
+      return;
+    }
+
+    try {
+      const info = await ytdl.getInfo(
+        `https://www.youtube.com/watch?v=${videoId}`
+      );
+      if (info.videoDetails.isLiveContent) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "無法下載直播影片" }));
+        return;
+      }
+      res.writeHead(200, {
+        "Content-Disposition": `attachment; filename="${info.videoDetails.title}.mp3"`,
+        "Content-Type": "audio/mpeg",
+      });
+      ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
+        format: "mp3",
+        quality: "highestaudio",
+      }).pipe(res);
     } catch (error) {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
