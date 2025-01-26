@@ -114,7 +114,7 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       res.writeHead(200, {
-        "Content-Disposition": `attachment; filename="${info.videoDetails.title}.mp4"`,
+        "Content-Disposition": `attachment; filename="${videoId}.mp4"`,
         "Content-Type": "video/mp4",
       });
       ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
@@ -148,7 +148,7 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       res.writeHead(200, {
-        "Content-Disposition": `attachment; filename="${info.videoDetails.title}.mp3"`,
+        "Content-Disposition": `attachment; filename="${videoId}.mp3"`,
         "Content-Type": "audio/mpeg",
       });
       ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
