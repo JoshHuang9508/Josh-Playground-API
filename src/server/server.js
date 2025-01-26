@@ -58,6 +58,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(info.videoDetails));
     } catch (error) {
+      console.error("api/ytdl error: ", error);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
     }
@@ -86,6 +87,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(info.items.filter((item) => item.isPlayable)));
     } catch (error) {
+      console.log("/api/ytpl error:", error);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
     }
@@ -117,9 +119,9 @@ const server = http.createServer(async (req, res) => {
       });
       ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
         format: "mp4",
-        quality: "highest",
       }).pipe(res);
     } catch (error) {
+      console.log("/api/ytdownload-mp4 error:", error);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
     }
@@ -151,9 +153,9 @@ const server = http.createServer(async (req, res) => {
       });
       ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
         format: "mp3",
-        quality: "highestaudio",
       }).pipe(res);
     } catch (error) {
+      console.log("/api/ytdownload-mp3 error:", error);
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "無法獲取影片資訊" }));
     }
@@ -285,7 +287,6 @@ server.listen(4000, () => {
 });
 
 const interval = setInterval(() => {
-  // console.log("playerState: ", playerState);
   if (playerState.isEnd) HandleEnd();
 }, 1000);
 
