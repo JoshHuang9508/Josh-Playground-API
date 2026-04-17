@@ -1,4 +1,5 @@
 import { SocketRequestHandler, SocketResponseType } from '@/api/socket';
+
 import * as PlayerService from '@/services/player';
 
 export const PlayerJoinHandler: SocketRequestHandler = {
@@ -38,7 +39,8 @@ export const PlayerSetStateHandler: SocketRequestHandler = {
   PART: 'SOCKET',
 
   async handle(socketId: string, state: Partial<typeof PlayerService.playerState>): Promise<SocketResponseType[]> {
-    Object.assign(PlayerService.playerState, state);
+    const filtered = Object.fromEntries(Object.entries(state).filter(([, v]) => v !== undefined));
+    Object.assign(PlayerService.playerState, filtered);
     return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
