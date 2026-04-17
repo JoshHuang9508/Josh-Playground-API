@@ -76,9 +76,18 @@ export default class HttpServer {
     GetRoutesInit();
 
     const server = http.createServer(async (req, res) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, PATCH');
+      const origin = req.headers.origin;
+      const allowed = serverConfig.allowedOrigins;
+      if (allowed === '*') {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      } else if (origin && allowed.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PATCH, DELETE, PUT');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, ngrok-skip-browser-warning');
+      res.setHeader('Access-Control-Max-Age', '86400');
 
       if (req.method === 'OPTIONS') {
         this.sendOptions(res);
