@@ -52,4 +52,5 @@ export const PostRoutesInit = () => {};
 export const GetRoutesInit = () => {
   GetRouters.addRoute('/api/ytdl', HttpHandlers.YtdlHandler);
   GetRouters.addRoute('/api/ytpl', HttpHandlers.YtplHandler);
+  GetRouters.addRoute('/api/osu/stats', HttpHandlers.OsuStatsHandler);
 };
