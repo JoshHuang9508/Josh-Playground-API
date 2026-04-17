@@ -11,11 +11,11 @@ export default class EventRouters {
   }
 
   addRoute(path: string, handler: SocketRequestHandler) {
-    this.socket.on(path, async (...datas: any[]) => handler.handle(this.socket.data.userId, ...datas).then((res) => SocketServer.ProcessResponses(res)));
+    this.socket.on(path, async (...datas: any[]) => handler.handle(this.socket.id, ...datas).then((res) => SocketServer.ProcessResponses(res)));
   }
 
   addAckRoute(path: string, handler: SocketRequestHandlerWithAck) {
-    this.socket.on(path, async (payload: any, ack: (res: any) => void) => handler.handle(this.socket.data.userId, payload, ack).then((res) => SocketServer.ProcessResponses(res)));
+    this.socket.on(path, async (payload: any, ack: (res: any) => void) => handler.handle(this.socket.id, payload, ack).then((res) => SocketServer.ProcessResponses(res)));
   }
 }
 

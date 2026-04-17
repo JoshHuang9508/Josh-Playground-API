@@ -8,42 +8,32 @@ import EventRouters, { EventRoutesInit } from '@/api/socket/routes';
 import * as PlayerService from '@/services/player';
 
 export type EmitTarget =
-  | { scope: 'user'; userId: string } // socket.emit
+  | { scope: 'user'; socketId: string } // socket.emit
   | { scope: 'room'; roomId: string } // io.to(roomId).emit
   | { scope: 'namespace' } // io.emit
-  | { scope: 'roomExceptUser'; roomId: string; userId: string } // io.to(roomId).except(userId).emit
-  | { scope: 'namespaceExceptUser'; userId: string }; // io.except(userId).emit
+  | { scope: 'roomExceptUser'; roomId: string; socketId: string } // io.to(roomId).except(socketId).emit
+  | { scope: 'namespaceExceptUser'; socketId: string }; // io.except(socketId).emit
 
 export type SocketResponseType =
   | { kind: 'emit'; target: EmitTarget; event: string; payload: any[] } // .emit(event, ...payload)
-  | { kind: 'join'; target: { scope: 'user'; userId: string }; roomId: string } // .join(roomId)
-  | { kind: 'leave'; target: { scope: 'user'; userId: string }; roomId: string } // .leave(roomId)
-  | { kind: 'disconnect'; target: { scope: 'user'; userId: string } }; // .disconnect()
+  | { kind: 'join'; target: { scope: 'user'; socketId: string }; roomId: string } // .join(roomId)
+  | { kind: 'leave'; target: { scope: 'user'; socketId: string }; roomId: string } // .leave(roomId)
+  | { kind: 'disconnect'; target: { scope: 'user'; socketId: string } }; // .disconnect()
 
 export default class SocketServer {
   static PART = 'SOCKET';
 
   static io: Server;
-  static userSocketMap: Map<string, Socket> = new Map();
 
   static _initPromise: Promise<void> | null = null;
 
-  static getSocket(userId: string) {
-    const socket = this.userSocketMap.get(userId);
-    if (!socket) return null;
-    return socket;
-  }
-
   static ProcessResponses(responses: SocketResponseType[]) {
     for (const response of responses) {
-      const socket = 'userId' in response.target ? SocketServer.getSocket(response.target.userId) : null;
-      const socketId = socket?.id ?? '';
-
       switch (response.kind) {
         case 'emit':
           switch (response.target.scope) {
             case 'user':
-              socket?.emit(response.event, ...response.payload);
+              this.io.to(response.target.socketId).emit(response.event, ...response.payload);
               break;
             case 'room':
               this.io.to(response.target.roomId).emit(response.event, ...response.payload);
@@ -54,19 +44,19 @@ export default class SocketServer {
             case 'roomExceptUser':
               this.io
                 .to(response.target.roomId)
-                .except(socketId)
+                .except(response.target.socketId)
                 .emit(response.event, ...response.payload);
               break;
           }
           break;
         case 'join':
-          socket?.join(response.roomId);
+          this.io.sockets.sockets.get(response.target.socketId)?.join(response.roomId);
           break;
         case 'leave':
-          socket?.leave(response.roomId);
+          this.io.sockets.sockets.get(response.target.socketId)?.leave(response.roomId);
           break;
         case 'disconnect':
-          socket?.disconnect();
+          this.io.sockets.sockets.get(response.target.socketId)?.disconnect();
           break;
       }
     }
@@ -88,10 +78,10 @@ export default class SocketServer {
       EventRoutesInit(new EventRouters(socket));
 
       socket.on('disconnect', () => {
-        const userId = socket.data.userId as string | undefined;
-        if (userId && PlayerService.users[userId]) {
-          PlayerService.addLog(`${PlayerService.users[userId]} 離開了房間`);
-          PlayerService.removeUser(userId);
+        const socketId = socket.id as string | undefined;
+        if (socketId && PlayerService.users[socketId]) {
+          PlayerService.addLog(`${PlayerService.users[socketId]} 離開了房間`);
+          PlayerService.removeUser(socketId);
           this.io.emit('receiveLog', PlayerService.logs);
           this.io.emit('receiveUsers', PlayerService.users);
         }
@@ -103,11 +93,11 @@ export default class SocketServer {
 }
 
 export interface SocketRequestHandler {
-  handle(userId: string, ...datas: any[]): Promise<SocketResponseType[]>;
+  handle(socketId: string, ...datas: any[]): Promise<SocketResponseType[]>;
   PART: string;
 }
 
 export interface SocketRequestHandlerWithAck {
-  handle(userId: string, payload: any, ack: (res: any) => void): Promise<SocketResponseType[]>;
+  handle(socketId: string, payload: any, ack: (res: any) => void): Promise<SocketResponseType[]>;
   PART: string;
 }
