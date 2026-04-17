@@ -57,11 +57,8 @@ export const PlayerOnDurationHandler: SocketRequestHandler = {
 export const PlayerOnProgressHandler: SocketRequestHandler = {
   PART: 'SOCKET',
 
-  async handle(socketId: string, state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }): Promise<SocketResponseType[]> {
-    PlayerService.playerState.played = state.played;
-    PlayerService.playerState.playedSeconds = state.playedSeconds;
-    PlayerService.playerState.loaded = state.loaded;
-    PlayerService.playerState.loadedSeconds = state.loadedSeconds;
+  async handle(socketId: string, playedSeconds: number): Promise<SocketResponseType[]> {
+    PlayerService.playerState.playedSeconds = playedSeconds;
     return [];
   },
 };
