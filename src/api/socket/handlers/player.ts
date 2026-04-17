@@ -235,6 +235,14 @@ export const PlayerSetRandomHandler: SocketRequestHandler = {
   },
 };
 
+export const PlayerSetVibeHandler: SocketRequestHandler = {
+  PART: 'SOCKET',
+
+  async handle(socketId: string, vibe: string): Promise<SocketResponseType[]> {
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:vibe', payload: [vibe] }];
+  },
+};
+
 export const PlayerSeekHandler: SocketRequestHandler = {
   PART: 'SOCKET',
 

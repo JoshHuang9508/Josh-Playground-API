@@ -40,5 +40,6 @@ export const EventRoutesInit = (eventRouter: EventRouters) => {
   eventRouter.addRoute('player:set_playback_rate', SocketHandlers.PlayerSetPlaybackRateHandler);
   eventRouter.addRoute('player:set_loop', SocketHandlers.PlayerSetLoopHandler);
   eventRouter.addRoute('player:set_random', SocketHandlers.PlayerSetRandomHandler);
+  eventRouter.addRoute('player:set_vibe', SocketHandlers.PlayerSetVibeHandler);
   eventRouter.addRoute('player:seek', SocketHandlers.PlayerSeekHandler);
 };
