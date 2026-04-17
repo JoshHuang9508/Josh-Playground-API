@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "dev": "tsx -r dotenv/config src/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "tsc && tsc-alias -p tsconfig.json",
-    "start": "node --inspect --max-old-space-size=4096 -r dotenv/config dist/index.js",
-    "setup": "node -r dotenv/config scripts/setup-db.cjs",
-    "execute": "tsx -r dotenv/config",
+    "start": "node --inspect --max-old-space-size=4096 dist/index.js",
+    "setup": "node scripts/setup-db.cjs",
+    "execute": "tsx",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\""
   },
   "dependencies": {

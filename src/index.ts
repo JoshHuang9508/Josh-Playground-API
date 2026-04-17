@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import HttpServer from '@/api/http';
 import SocketServer from '@/api/socket';
 import Database from '@/database';
