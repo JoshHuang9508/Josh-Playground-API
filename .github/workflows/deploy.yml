@@ -18,5 +18,12 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.OSU_CLIENT_ID }}" > .env
+          echo "${{ secrets.OSU_CLIENT_SECRET }}" >> .env
+          echo "${{ secrets.OSU_DEFAULT_USER }}" >> .env
+          echo "${{ secrets.ALLOWED_ORIGINS }}" >> .env
+
       - name: Restart with pm2
         run: pm2 restart josh-playground-api || pm2 start dist/index.js --name josh-playground-api
