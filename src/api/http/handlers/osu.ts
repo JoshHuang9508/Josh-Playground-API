@@ -98,31 +98,8 @@ export const OsuStatsHandler: RequestHandler = {
       }
 
       const user = (await res.json()) as any;
-      const stats = user.statistics || {};
-      const level = stats.level || { current: 0, progress: 0 };
-      const grades = stats.grade_counts || {};
 
-      const result: OsuUserStats = {
-        username: user.username,
-        avatarUrl: user.avatar_url,
-        countryCode: user.country_code,
-        joinDate: user.join_date,
-        globalRank: stats.global_rank ?? null,
-        countryRank: stats.country_rank ?? stats.rank?.country ?? null,
-        pp: stats.pp ?? null,
-        level: level.current ?? 0,
-        levelProgress: level.progress ?? 0,
-        accuracy: stats.hit_accuracy ?? 0,
-        playCount: stats.play_count ?? 0,
-        playTime: stats.play_time ?? 0,
-        gradeCounts: {
-          ss: (grades.ss ?? 0) + (grades.ssh ?? 0),
-          s: (grades.s ?? 0) + (grades.sh ?? 0),
-          a: grades.a ?? 0,
-        },
-      };
-
-      return { success: true, code: 200, message: 'OK', data: result };
+      return { success: true, code: 200, message: 'OK', data: user };
     } catch (error: any) {
       new Logger('HTTP').error(`OsuStatsHandler 錯誤: ${error.message}`);
       return { success: false, code: 500, message: '無法獲取 osu! 玩家資訊' };
