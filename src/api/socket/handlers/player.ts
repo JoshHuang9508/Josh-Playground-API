@@ -9,9 +9,9 @@ export const PlayerJoinHandler: SocketRequestHandler = {
     PlayerService.users[socketId] = username;
 
     return [
-      { kind: 'emit', target: { scope: 'namespace' }, event: 'receiveLog', payload: [PlayerService.logs] },
-      { kind: 'emit', target: { scope: 'namespace' }, event: 'receiveUsers', payload: [PlayerService.users] },
-      { kind: 'emit', target: { scope: 'user', socketId: socketId }, event: 'receivePlayerState', payload: [PlayerService.playerState] },
+      { kind: 'emit', target: { scope: 'namespace' }, event: 'player:logs', payload: [PlayerService.logs] },
+      { kind: 'emit', target: { scope: 'namespace' }, event: 'player:users', payload: [PlayerService.users] },
+      { kind: 'emit', target: { scope: 'user', socketId: socketId }, event: 'player:player_state', payload: [PlayerService.playerState] },
     ];
   },
 };
@@ -21,7 +21,7 @@ export const PlayerSetUsernameHandler: SocketRequestHandler = {
 
   async handle(socketId: string, username: string): Promise<SocketResponseType[]> {
     PlayerService.users[socketId] = username;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receiveUsers', payload: [PlayerService.users] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:users', payload: [PlayerService.users] }];
   },
 };
 
@@ -30,7 +30,7 @@ export const PlayerAddLogHandler: SocketRequestHandler = {
 
   async handle(socketId: string, newLog: string): Promise<SocketResponseType[]> {
     PlayerService.addLog(newLog);
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receiveLog', payload: [PlayerService.logs] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:logs', payload: [PlayerService.logs] }];
   },
 };
 
@@ -39,7 +39,7 @@ export const PlayerSetStateHandler: SocketRequestHandler = {
 
   async handle(socketId: string, state: Partial<typeof PlayerService.playerState>): Promise<SocketResponseType[]> {
     Object.assign(PlayerService.playerState, state);
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -78,7 +78,7 @@ export const PlayerPlayHandler: SocketRequestHandler = {
 
   async handle(socketId: string): Promise<SocketResponseType[]> {
     PlayerService.playerState.playing = true;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -87,7 +87,7 @@ export const PlayerPauseHandler: SocketRequestHandler = {
 
   async handle(socketId: string): Promise<SocketResponseType[]> {
     PlayerService.playerState.playing = false;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -96,8 +96,8 @@ export const PlayerRefreshHandler: SocketRequestHandler = {
 
   async handle(socketId: string): Promise<SocketResponseType[]> {
     return [
-      { kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] },
-      { kind: 'emit', target: { scope: 'namespace' }, event: 'seek', payload: [PlayerService.playerState.playedSeconds] },
+      { kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] },
+      { kind: 'emit', target: { scope: 'namespace' }, event: 'player:seek', payload: [PlayerService.playerState.playedSeconds] },
     ];
   },
 };
@@ -110,7 +110,7 @@ export const PlayerAddTrackHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[PlayerService.trackIndex] ?? null;
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = PlayerService.trackIndex;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -122,7 +122,7 @@ export const PlayerAddTracksHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[PlayerService.trackIndex] ?? null;
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = PlayerService.trackIndex;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -137,7 +137,7 @@ export const PlayerRemoveTrackHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[PlayerService.trackIndex] ?? null;
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = PlayerService.trackIndex;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -150,7 +150,7 @@ export const PlayerSetTrackQueueHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[0] ?? null;
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = 0;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -163,11 +163,11 @@ export const PlayerNextTrackHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[PlayerService.trackIndex] ?? null;
     const responses: SocketResponseType[] = [];
     if (currentTrack && newTrack && newTrack.id !== currentTrack.id) {
-      responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'seek', payload: [0] });
+      responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'player:seek', payload: [0] });
     }
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = PlayerService.trackIndex;
-    responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] });
+    responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] });
     return responses;
   },
 };
@@ -181,11 +181,11 @@ export const PlayerPrevTrackHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[PlayerService.trackIndex] ?? null;
     const responses: SocketResponseType[] = [];
     if (currentTrack && newTrack && newTrack.id !== currentTrack.id) {
-      responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'seek', payload: [0] });
+      responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'player:seek', payload: [0] });
     }
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = PlayerService.trackIndex;
-    responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] });
+    responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] });
     return responses;
   },
 };
@@ -199,11 +199,11 @@ export const PlayerSetTrackIndexHandler: SocketRequestHandler = {
     const newTrack = PlayerService.playerState.trackQueue[index] ?? null;
     const responses: SocketResponseType[] = [];
     if (currentTrack && newTrack && newTrack.id !== currentTrack.id) {
-      responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'seek', payload: [0] });
+      responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'player:seek', payload: [0] });
     }
     PlayerService.playerState.currentTrack = newTrack;
     PlayerService.playerState.index = index;
-    responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] });
+    responses.push({ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] });
     return responses;
   },
 };
@@ -213,7 +213,7 @@ export const PlayerSetPlaybackRateHandler: SocketRequestHandler = {
 
   async handle(socketId: string, rate: number): Promise<SocketResponseType[]> {
     PlayerService.playerState.playbackRate = rate;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -222,7 +222,7 @@ export const PlayerSetLoopHandler: SocketRequestHandler = {
 
   async handle(socketId: string, loop: boolean): Promise<SocketResponseType[]> {
     PlayerService.playerState.loop = loop;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -231,7 +231,7 @@ export const PlayerSetRandomHandler: SocketRequestHandler = {
 
   async handle(socketId: string, random: boolean): Promise<SocketResponseType[]> {
     PlayerService.playerState.random = random;
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'receivePlayerState', payload: [PlayerService.playerState] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:player_state', payload: [PlayerService.playerState] }];
   },
 };
 
@@ -239,6 +239,6 @@ export const PlayerSeekHandler: SocketRequestHandler = {
   PART: 'SOCKET',
 
   async handle(socketId: string, time: number): Promise<SocketResponseType[]> {
-    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'seek', payload: [time] }];
+    return [{ kind: 'emit', target: { scope: 'namespace' }, event: 'player:seek', payload: [time] }];
   },
 };

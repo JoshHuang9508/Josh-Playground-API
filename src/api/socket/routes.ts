@@ -20,25 +20,25 @@ export default class EventRouters {
 }
 
 export const EventRoutesInit = (eventRouter: EventRouters) => {
-  eventRouter.addRoute('playerJoin', SocketHandlers.PlayerJoinHandler);
-  eventRouter.addRoute('playerSetUsername', SocketHandlers.PlayerSetUsernameHandler);
-  eventRouter.addRoute('playerAddLog', SocketHandlers.PlayerAddLogHandler);
-  eventRouter.addRoute('playerSetState', SocketHandlers.PlayerSetStateHandler);
-  eventRouter.addRoute('playerOnDuration', SocketHandlers.PlayerOnDurationHandler);
-  eventRouter.addRoute('playerOnProgress', SocketHandlers.PlayerOnProgressHandler);
-  eventRouter.addRoute('playerOnEnd', SocketHandlers.PlayerOnEndHandler);
-  eventRouter.addRoute('playerPlay', SocketHandlers.PlayerPlayHandler);
-  eventRouter.addRoute('playerPause', SocketHandlers.PlayerPauseHandler);
-  eventRouter.addRoute('playerRefresh', SocketHandlers.PlayerRefreshHandler);
-  eventRouter.addRoute('playerAddTrack', SocketHandlers.PlayerAddTrackHandler);
-  eventRouter.addRoute('playerAddTracks', SocketHandlers.PlayerAddTracksHandler);
-  eventRouter.addRoute('playerRemoveTrack', SocketHandlers.PlayerRemoveTrackHandler);
-  eventRouter.addRoute('playerSetTrackQueue', SocketHandlers.PlayerSetTrackQueueHandler);
-  eventRouter.addRoute('playerNextTrack', SocketHandlers.PlayerNextTrackHandler);
-  eventRouter.addRoute('playerPrevTrack', SocketHandlers.PlayerPrevTrackHandler);
-  eventRouter.addRoute('playerSetTrackIndex', SocketHandlers.PlayerSetTrackIndexHandler);
-  eventRouter.addRoute('playerSetPlaybackRate', SocketHandlers.PlayerSetPlaybackRateHandler);
-  eventRouter.addRoute('playerSetLoop', SocketHandlers.PlayerSetLoopHandler);
-  eventRouter.addRoute('playerSetRandom', SocketHandlers.PlayerSetRandomHandler);
-  eventRouter.addRoute('playerSeek', SocketHandlers.PlayerSeekHandler);
+  eventRouter.addRoute('player:join', SocketHandlers.PlayerJoinHandler);
+  eventRouter.addRoute('player:set_username', SocketHandlers.PlayerSetUsernameHandler);
+  eventRouter.addRoute('player:add_log', SocketHandlers.PlayerAddLogHandler);
+  eventRouter.addRoute('player:set_state', SocketHandlers.PlayerSetStateHandler);
+  eventRouter.addRoute('player:duration', SocketHandlers.PlayerOnDurationHandler);
+  eventRouter.addRoute('player:progress', SocketHandlers.PlayerOnProgressHandler);
+  eventRouter.addRoute('player:end', SocketHandlers.PlayerOnEndHandler);
+  eventRouter.addRoute('player:play', SocketHandlers.PlayerPlayHandler);
+  eventRouter.addRoute('player:pause', SocketHandlers.PlayerPauseHandler);
+  eventRouter.addRoute('player:refresh', SocketHandlers.PlayerRefreshHandler);
+  eventRouter.addRoute('player:add_track', SocketHandlers.PlayerAddTrackHandler);
+  eventRouter.addRoute('player:add_tracks', SocketHandlers.PlayerAddTracksHandler);
+  eventRouter.addRoute('player:remove_track', SocketHandlers.PlayerRemoveTrackHandler);
+  eventRouter.addRoute('player:set_track_queue', SocketHandlers.PlayerSetTrackQueueHandler);
+  eventRouter.addRoute('player:next_track', SocketHandlers.PlayerNextTrackHandler);
+  eventRouter.addRoute('player:prev_track', SocketHandlers.PlayerPrevTrackHandler);
+  eventRouter.addRoute('player:set_track_index', SocketHandlers.PlayerSetTrackIndexHandler);
+  eventRouter.addRoute('player:set_playback_rate', SocketHandlers.PlayerSetPlaybackRateHandler);
+  eventRouter.addRoute('player:set_loop', SocketHandlers.PlayerSetLoopHandler);
+  eventRouter.addRoute('player:set_random', SocketHandlers.PlayerSetRandomHandler);
+  eventRouter.addRoute('player:seek', SocketHandlers.PlayerSeekHandler);
 };
