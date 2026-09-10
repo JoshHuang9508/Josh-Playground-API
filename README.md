@@ -1,8 +1,8 @@
-# Josh Playgound API
+# Personal Web Backend
 
 ## What is this
 
-- This is API server for [Josh Playground](https://github.com/JoshHuang9508/Josh-Playground)
+- This is API server for [Personal Web](https://github.com/JoshHuang9508/Personal-Web)
 
 ## API
 
@@ -425,7 +425,7 @@
               "url":"https://i.ytimg.com/vi/N0rEDZ4mQzg/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCV5nU0IoMI3T0QrGEPRnOLG0CvUg",
               "width":336,
               "height":188
-           },https://github.com/JoshHuang9508/Josh-Playground-API/blob/main/README.md
+           },https://github.com/JoshHuang9508/Personal-Web-Backend/blob/main/README.md
            {
               "url":"https://i.ytimg.com/vi_webp/N0rEDZ4mQzg/maxresdefault.webp?v=62e1a790",
               "width":1920,
